@@ -20,8 +20,12 @@ extension Date {
         return formatter.string(from: self)
     }
     
+    //checking whether the date is today
+    var isToday: Bool {
+        return Calendar.current.isDateInToday(self)
+    }
     
-    //Fetching week based on given data
+    //Fetching week based on given date
     //getting a date as parameter to return days in that week,
     //if parameter is not passed will get today's date by default
     func fetchWeek(_ date: Date = .init()) -> [WeekDay] {
