@@ -37,7 +37,7 @@ extension Date {
         //creating obj to store days of the week
         var week: [WeekDay] = []
         //to get start and end dates of the week (week selected based on date received as parameter)
-        let weekForDate = calendar.dateInterval(of: .weekOfMonth, for: date)
+        let weekForDate = calendar.dateInterval(of: .weekOfMonth, for: startOfDate)
         //getting 1st day of the week, if any issue then return blank array
         guard let startOfWeek = weekForDate?.start else {
             return []
@@ -56,6 +56,35 @@ extension Date {
         return week
     }
     
+    //creating next week, based on the last date of the current week
+    func createNextWeek() -> [WeekDay] {
+        //creating a calendar obj
+        let calendar = Calendar.current
+        //getting start of lastdate (date w/ 12am time)
+        let startOfLastDate = calendar.startOfDay(for: self)
+        //getting 1st date of next week by adding 1 day to lastdate of this week
+        guard let nextDate = calendar.date(byAdding: .day, value: 1, to: startOfLastDate) else {
+            return []
+        }
+        
+        //getting next week's data by calling fetchWeek fn using 1st date of the week
+        return fetchWeek(nextDate)
+    }
+    
+    //creating previous week, based on the 1st date of the current week
+    func createPreviousWeek() -> [WeekDay] {
+        //creating a calendar obj
+        let calendar = Calendar.current
+        //getting start of firstdate (date w/ 12am time)
+        let startOfFirstDate = calendar.startOfDay(for: self)
+        //getting last date of previous week by deducting 1 day from firstdate of this week
+        guard let previousDate = calendar.date(byAdding: .day, value: -1, to: startOfFirstDate) else {
+            return []
+        }
+        
+        //getting next week's data by calling fetchWeek fn using 1st date of the week
+        return fetchWeek(previousDate)
+    }
     
     struct WeekDay: Identifiable {
         var id: UUID = .init()

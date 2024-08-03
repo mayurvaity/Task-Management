@@ -13,10 +13,13 @@ struct Home: View {
     @State private var currentDate: Date = .init()
     //var containing arrays of week dates for week slider
     @State private var weekSlider: [[Date.WeekDay]] = []
-    //??
-    @State private var currentWeekIndex: Int = 0
+    //index of selected week array from weekslider array
+    @State private var currentWeekIndex: Int = 1
+    //to manage createweek action 
+    @State private var createWeek: Bool = false
     
-    
+    //animation namespace
+    @Namespace private var animation
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -28,8 +31,21 @@ struct Home: View {
             if weekSlider.isEmpty {
                 //getting current week dates data
                 let currentWeek = Date().fetchWeek()
+                
+                //getting 1st date of the current week
+                if let firstDate = currentWeek.first?.date {
+                    //getting last week's data using 1st date and appending it to the weekslider array
+                    weekSlider.append(firstDate.createPreviousWeek())
+                }
+                
                 //appending current week dates data to weekslider data
                 weekSlider.append(currentWeek)
+                
+                //getting last date of the current week
+                if let lastDate = currentWeek.last?.date {
+                    //getting next week's data using last date and appending it to the weekslider array
+                    weekSlider.append(lastDate.createNextWeek())
+                }
             }
         }
     }
@@ -66,9 +82,11 @@ struct Home: View {
                     //showing week data using weekview
                     //tag - to identify each week vw separately
                     WeekView(week)
+                        .padding(.horizontal, 15)
                         .tag(index)
                 }
             }
+            .padding(.horizontal, -15) //to counter outer vw padding
             .tabViewStyle(.page(indexDisplayMode: .never))
             .frame(height: 90)
             
@@ -85,6 +103,12 @@ struct Home: View {
         })
         .padding(15)
         .background(.white)
+        .onChange(of: currentWeekIndex, initial: false) { oldValue, newValue in
+            //creating when it reaches 1st/ last page
+            if newValue == 0 || newValue == (weekSlider.count - 1) {
+                createWeek = true
+            }
+        }
     }
     
     //week view
@@ -116,6 +140,7 @@ struct Home: View {
                             if isSameDate(day.date, currentDate) {
                                 Circle()
                                     .fill(.darkBlue)
+                                    .matchedGeometryEffect(id: "TABINDICATOR", in: animation) //to show gliding animation when tapped on a day on week slider 
                             }
                             
                             //Indicator for today's date (cyan dot below the date)
@@ -127,6 +152,7 @@ struct Home: View {
                                     .offset(y: 12) // to put it out of the bg circle
                             }
                         })
+                        //in - to give shape to the bg of this vw
                         .background(.white.shadow(.drop(radius: 1)), in: .circle)
                 }
                 .hSpacing(.center)
@@ -137,6 +163,21 @@ struct Home: View {
                         currentDate = day.date
                     }
                 }
+            }
+        }
+        .background {
+            GeometryReader {
+                let minX = $0.frame(in: .global).minX
+                
+                Color.clear
+                    .preference(key: OffsetKey.self, value: minX)
+                    .onPreferenceChange(OffsetKey.self) { value in
+                        //when the offset reaches 15 and if the currentweek is toggled then only generating next set of week
+                        if value.rounded() == 15 && createWeek {
+                            print("Generate")
+                            createWeek = false
+                        }
+                    }
             }
         }
     }
