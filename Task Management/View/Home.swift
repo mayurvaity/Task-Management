@@ -19,6 +19,9 @@ struct Home: View {
     @State private var createWeek: Bool = false
     //var to keep tasks list
     @State private var tasks: [Task] = sampleTasks.sorted(by: { $1.creationDate > $0.creationDate })
+    //to manage create new task action
+    @State private var createNewTask: Bool = false
+    
     
     //animation namespace
     @Namespace private var animation
@@ -41,6 +44,19 @@ struct Home: View {
             
         }
         .vSpacing(.top) //to bring this vw to the top
+        //floating button at the bottom to create new task
+        .overlay(alignment: .bottomTrailing, content: {
+            Button(action: {
+                createNewTask.toggle()
+            }) {
+                Image(systemName: "plus")
+                    .fontWeight(.semibold)
+                    .foregroundStyle(.white)
+                    .frame(width: 55, height: 55)
+                    .background(.darkBlue.shadow(.drop(color: .black.opacity(0.25), radius: 5, x: 10, y: 10)), in: .circle)
+            }
+            .padding(15)
+        })
         .onAppear {
             //if there is no weekSlider data available
             if weekSlider.isEmpty {
@@ -62,6 +78,13 @@ struct Home: View {
                     weekSlider.append(lastDate.createNextWeek())
                 }
             }
+        }
+        .sheet(isPresented: $createNewTask) { 
+            NewTaskView()
+                .presentationDetents([.height(300)])
+                .interactiveDismissDisabled()
+                .presentationCornerRadius(30)
+                .presentationBackground(.BG)
         }
     }
     
