@@ -17,13 +17,28 @@ struct Home: View {
     @State private var currentWeekIndex: Int = 1
     //to manage createweek action 
     @State private var createWeek: Bool = false
+    //var to keep tasks list
+    @State private var tasks: [Task] = sampleTasks.sorted(by: { $1.creationDate > $0.creationDate })
     
     //animation namespace
     @Namespace private var animation
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
+            //for header and week slider vw
             HeaderView()
+            
+            //for tasks vw
+            ScrollView(.vertical) {
+                VStack{
+                    //tasks vw
+                    TasksView()
+                }
+                .hSpacing(.center)
+                .vSpacing(.center)
+            }
+            .scrollIndicators(.hidden)
+            
         }
         .vSpacing(.top) //to bring this vw to the top
         .onAppear {
@@ -150,13 +165,13 @@ struct Home: View {
                                     .fill(.cyan)
                                     .frame(width: 5, height: 5)
                                     .vSpacing(.bottom) //to push it down
-                                    .offset(y: 35) // to put it out of the bg circle
-                            } 
+                                    .offset(y: 35) // to put it out of the bg circle and below monthname
+                            }
                         })
                         //in - to give shape to the bg of this vw
                         .background(.white.shadow(.drop(radius: 1)), in: .circle)
                     
-                    //for day name
+                    //for month name
                     Text(day.date.format("MMM"))
                         .font(.callout)
                         .fontWeight(.medium)
@@ -190,6 +205,28 @@ struct Home: View {
                     }
             }
         }
+    }
+    
+    //tasks vw
+    @ViewBuilder
+    func TasksView() -> some View {
+        VStack(alignment: .leading, spacing: 35) {
+            ForEach($tasks) { $task in
+                //calling task row vw for each task (as a row) 
+                TaskRowView(task: $task)
+                    .background(alignment: .leading) {
+                        //except for last task in the list, adding line below dot, that's why checking if this task is the last or not 
+                        if tasks.last?.id != task.id {
+                            Rectangle()
+                                .frame(width: 1) //making this rectangle of width 2
+                                .offset(x: 8) //to adjust this line (rect) to right
+                                .padding(.bottom, -35) //to extnd this below
+                        }
+                    }
+            }
+        }
+        .padding([.vertical, .leading], 15)
+        .padding(.top, 15)
     }
     
     func paginateWeek() {
