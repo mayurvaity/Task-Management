@@ -88,7 +88,7 @@ struct Home: View {
             }
             .padding(.horizontal, -15) //to counter outer vw padding
             .tabViewStyle(.page(indexDisplayMode: .never))
-            .frame(height: 90)
+            .frame(height: 116)
             
         }
         .hSpacing(.leading) // to add spacing after (on right) abv vstack and to push this vw to the leading edge
@@ -106,6 +106,7 @@ struct Home: View {
         .onChange(of: currentWeekIndex, initial: false) { oldValue, newValue in
             //creating when it reaches 1st/ last page
             if newValue == 0 || newValue == (weekSlider.count - 1) {
+                //if reached to start or end of the weekslider array, set createweek var to true 
                 createWeek = true
             }
         }
@@ -149,11 +150,19 @@ struct Home: View {
                                     .fill(.cyan)
                                     .frame(width: 5, height: 5)
                                     .vSpacing(.bottom) //to push it down
-                                    .offset(y: 12) // to put it out of the bg circle
-                            }
+                                    .offset(y: 35) // to put it out of the bg circle
+                            } 
                         })
                         //in - to give shape to the bg of this vw
                         .background(.white.shadow(.drop(radius: 1)), in: .circle)
+                    
+                    //for day name
+                    Text(day.date.format("MMM"))
+                        .font(.callout)
+                        .fontWeight(.medium)
+                        .textScale(.secondary)
+                        .foregroundStyle(.gray)
+                    
                 }
                 .hSpacing(.center)
                 .contentShape(.rect)
@@ -174,10 +183,35 @@ struct Home: View {
                     .onPreferenceChange(OffsetKey.self) { value in
                         //when the offset reaches 15 and if the currentweek is toggled then only generating next set of week
                         if value.rounded() == 15 && createWeek {
-                            print("Generate")
+                            //calling fn to get new week's data
+                            paginateWeek()
                             createWeek = false
                         }
                     }
+            }
+        }
+    }
+    
+    func paginateWeek() {
+        //safecheck
+        if weekSlider.indices.contains(currentWeekIndex) {
+            //for when user reaches 1st week from the list
+            if let firstDate = weekSlider[currentWeekIndex].first?.date, currentWeekIndex == 0 {
+                //inserting new week at the 0th index and removing last array item
+                weekSlider.insert(firstDate.createPreviousWeek(), at: 0)
+                weekSlider.removeLast()
+                //setting selected index again, as item has shifted in the array
+                currentWeekIndex = 1
+            }
+            
+            //for when user reaches last week from the list
+            if let lastDate = weekSlider[currentWeekIndex].last?.date,
+               currentWeekIndex == (weekSlider.count - 1) {
+                //appending new week and removing 1st array item
+                weekSlider.append(lastDate.createNextWeek())
+                weekSlider.removeFirst()
+                //setting selected index again, as item has shifted in the array
+                currentWeekIndex = weekSlider.count - 2
             }
         }
     }
