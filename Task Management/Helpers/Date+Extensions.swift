@@ -25,6 +25,18 @@ extension Date {
         return Calendar.current.isDateInToday(self)
     }
     
+    //checking if the date is same hour
+    var isSameHour: Bool {
+        //orderedSame - to check if both values are matching
+        return Calendar.current.compare(self, to: .init(), toGranularity: .hour) == .orderedSame
+    }
+    
+    //checking if the date is past hour
+    var isPast: Bool {
+        //orderedAscending - to check if this value is less than 2nd value (i.e., current time) from the op of compare fn 
+        return Calendar.current.compare(self, to: .init(), toGranularity: .hour) == .orderedAscending
+    }
+    
     //Fetching week based on given date
     //getting a date as parameter to return days in that week,
     //if parameter is not passed will get today's date by default

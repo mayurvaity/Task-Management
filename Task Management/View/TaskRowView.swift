@@ -15,7 +15,7 @@ struct TaskRowView: View {
         HStack(alignment: .top, spacing: 15) {
             //status dot on left side
             Circle()
-                .fill(.darkBlue)
+                .fill(indicatorColor)
                 .frame(width: 10, height: 10)
                 .padding(4)
                 .background(.white.shadow(.drop(color: .black.opacity(0.1), radius: 3)), in: .circle) //for circle around blue dot
@@ -43,6 +43,19 @@ struct TaskRowView: View {
             
         }
         .hSpacing(.leading) //to keep everything within vw aligned to the left
+    }
+    
+    //to set color of the status dot of tasks
+    var indicatorColor: Color {
+        //if task is completed return green else darkblue 
+        if task.isCompleted {
+            return .green
+        }
+        
+        //checking if task time matches current time (by hr) then assigning color darkBlue
+        //if task is past due then assigning color red
+        //if task is pending in future hr then assigning color black
+        return task.creationDate.isSameHour ? .darkBlue : (task.creationDate.isPast ? .red : .black)
     }
 }
 
