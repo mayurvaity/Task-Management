@@ -19,6 +19,18 @@ struct TaskRowView: View {
                 .frame(width: 10, height: 10)
                 .padding(4)
                 .background(.white.shadow(.drop(color: .black.opacity(0.1), radius: 3)), in: .circle) //for circle around blue dot
+                .overlay {
+                    //adding bigger tappable area to tap on the small dot
+                    Circle()
+                        .frame(width: 50, height: 50)
+                        .blendMode(.destinationOver) //to blend with the bg components
+                        .onTapGesture {
+                            //on tapping on this task to be set as completed
+                            withAnimation(.snappy) {
+                                task.isCompleted.toggle()
+                            }
+                        }
+                }
             
             //for task title and time
             VStack(alignment: .leading, spacing: 8) {
