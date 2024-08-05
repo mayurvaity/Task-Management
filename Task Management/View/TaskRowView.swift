@@ -9,7 +9,7 @@ import SwiftUI
 
 struct TaskRowView: View {
     //binding var to keep task data and send back changes made here 
-    @Binding var task: Task
+    @Bindable var task: Task
     
     var body: some View {
         HStack(alignment: .top, spacing: 15) {
@@ -47,7 +47,7 @@ struct TaskRowView: View {
             .padding(15)
             .hSpacing(.leading)
             //to give bg color to the tasks as per their status, also applying corner radius
-            .background(task.tint, in: .rect(topLeadingRadius: 15, bottomLeadingRadius: 15))
+            .background(task.tintColor, in: .rect(topLeadingRadius: 15, bottomLeadingRadius: 15))
             //to cross off completed tasks
             .strikethrough(task.isCompleted, pattern: .solid, color: .black)
             //to move this vstack a little up 

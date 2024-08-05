@@ -13,5 +13,6 @@ struct Task_ManagementApp: App {
         WindowGroup {
             ContentView()
         }
+        .modelContainer(for: Task.self) //adding swiftdata model to the app 
     }
 }

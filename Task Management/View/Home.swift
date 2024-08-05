@@ -17,8 +17,7 @@ struct Home: View {
     @State private var currentWeekIndex: Int = 1
     //to manage createweek action 
     @State private var createWeek: Bool = false
-    //var to keep tasks list
-    @State private var tasks: [Task] = sampleTasks.sorted(by: { $1.creationDate > $0.creationDate })
+    
     //to manage create new task action
     @State private var createNewTask: Bool = false
     
@@ -35,7 +34,7 @@ struct Home: View {
             ScrollView(.vertical) {
                 VStack{
                     //tasks vw
-                    TasksView()
+                    TasksView(currentDate: $currentDate)
                 }
                 .hSpacing(.center)
                 .vSpacing(.center)
@@ -230,27 +229,6 @@ struct Home: View {
         }
     }
     
-    //tasks vw
-    @ViewBuilder
-    func TasksView() -> some View {
-        VStack(alignment: .leading, spacing: 35) {
-            ForEach($tasks) { $task in
-                //calling task row vw for each task (as a row) 
-                TaskRowView(task: $task)
-                    .background(alignment: .leading) {
-                        //except for last task in the list, adding line below dot, that's why checking if this task is the last or not 
-                        if tasks.last?.id != task.id {
-                            Rectangle()
-                                .frame(width: 1) //making this rectangle of width 2
-                                .offset(x: 8) //to adjust this line (rect) to right
-                                .padding(.bottom, -35) //to extnd this below
-                        }
-                    }
-            }
-        }
-        .padding([.vertical, .leading], 15)
-        .padding(.top, 15)
-    }
     
     func paginateWeek() {
         //safecheck
