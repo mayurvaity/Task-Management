@@ -6,10 +6,14 @@
 //
 
 import SwiftUI
+import SwiftData
 
 struct TaskRowView: View {
     //binding var to keep task data and send back changes made here 
     @Bindable var task: Task
+    
+    //model context for interaction with swiftdata db
+    @Environment(\.modelContext) private var context
     
     var body: some View {
         HStack(alignment: .top, spacing: 15) {
@@ -22,8 +26,10 @@ struct TaskRowView: View {
                 .overlay {
                     //adding bigger tappable area to tap on the small dot
                     Circle()
+                        .foregroundStyle(.clear)
+                        .contentShape(.circle) //alternate way to receive taps
                         .frame(width: 50, height: 50)
-                        .blendMode(.destinationOver) //to blend with the bg components
+//                        .blendMode(.destinationOver) //to blend with the bg components
                         .onTapGesture {
                             //on tapping on this task to be set as completed
                             withAnimation(.snappy) {
@@ -50,8 +56,22 @@ struct TaskRowView: View {
             .background(task.tintColor, in: .rect(topLeadingRadius: 15, bottomLeadingRadius: 15))
             //to cross off completed tasks
             .strikethrough(task.isCompleted, pattern: .solid, color: .black)
-            //to move this vstack a little up 
+            //contentShape - to specify how this vw will look when tap and hold is performed on a task
+            //.rect(cornerRadius: 15) - 2nd parameter below, here we can specify shape of the vw
+            .contentShape(.contextMenuPreview, .rect(cornerRadius: 15))
+            //tap on a task and hold, then below button will show
+            .contextMenu {
+                Button("Delete task", role: .destructive) {
+                    //deleting task
+                    //deleting from model context
+                    context.delete(task)
+                    //to save changes in db
+                    try? context.save()
+                }
+            }
+            //to move this vstack a little up
             .offset(y: -8)
+            
             
         }
         .hSpacing(.leading) //to keep everything within vw aligned to the left
