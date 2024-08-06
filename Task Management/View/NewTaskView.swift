@@ -12,10 +12,13 @@ struct NewTaskView: View {
     //env var to dismiss sheet
     @Environment(\.dismiss) private var dismiss
     
+    //model context for saving data
+    @Environment(\.modelContext) private var context
+    
     //vars to store user input like task title, task date and task color
     @State private var taskTitle = ""
     @State private var taskDate: Date = .init()
-    @State private var taskColor: Color = .taskColor1
+    @State private var taskColor: String = "TaskColor1"
     
     var body: some View {
         VStack(alignment: .leading, spacing: 15) {
@@ -63,12 +66,14 @@ struct NewTaskView: View {
                         .foregroundStyle(.gray)
                     
                     //creating array of colors to use in the below picker
-                    let colors: [Color] = [.taskColor1, .taskColor2, .taskColor3, .taskColor4, .taskColor5]
+                    let colors: [String] = (1...5).compactMap { index -> String in
+                        return "TaskColor\(index)"
+                    }
                     
                     HStack(spacing: 0) {
                         ForEach(colors, id: \.self) { color in
                             Circle()
-                                .fill(color)
+                                .fill(Color(color))
                                 .frame(width: 20, height: 20)
                                 .background {
                                     //to highlight (by adding border like around color circle) selected color
@@ -94,7 +99,22 @@ struct NewTaskView: View {
             Spacer(minLength: 0)
             
             //create task button
-            Button(action: {}, label: {
+            Button(action: {
+                //saving task
+                //creating task object with values received
+                let task = Task(taskTitle: taskTitle, creationDate: taskDate, tint: taskColor)
+                //adding this task to model context and saving
+                do {
+                    //adding this task to model context
+                    context.insert(task)
+                    //saving context  
+                    try context.save()
+                    //after successful task completion close the modal vw
+                    dismiss() 
+                } catch {
+                    print(error.localizedDescription)
+                }
+            }, label: {
                 Text("Create Task")
                     .font(.title3)
                     .fontWeight(.semibold)
@@ -102,7 +122,7 @@ struct NewTaskView: View {
                     .foregroundStyle(.black)
                     .hSpacing(.center)
                     .padding(.vertical, 12)
-                    .background(taskColor, in: .rect(cornerRadius: 10))
+                    .background(Color(taskColor), in: .rect(cornerRadius: 10))
                 
             })
             .disabled(taskTitle == "") //to disable the button if task title field in empty

@@ -32,7 +32,7 @@ struct TasksView: View {
         
         ///Sorting (based on creation date i.e., task date)
         let sortDescriptor = [
-            SortDescriptor(\Task.creationDate, order: .reverse)
+            SortDescriptor(\Task.creationDate, order: .forward)
         ]
         
         ///performing filtering (using predicate) and sorting (using sortDescriptor) on tasks data
