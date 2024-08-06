@@ -58,6 +58,15 @@ struct TasksView: View {
         }
         .padding([.vertical, .leading], 15)
         .padding(.top, 15)
+        .overlay {
+            //when there are no tasks created for any day, to show "no tasks found" message 
+            if tasks.isEmpty {
+                Text("No tasks found")
+                    .font(.caption)
+                    .foregroundStyle(.gray)
+                    .frame(width: 150)
+            }
+        }
     }
 }
 
